@@ -4,6 +4,8 @@
 Created on Mon Jul 22 21:09:19 2018
 
 @author: https://github.com/sahandv
+
+USE PYTHON 2.7 FOR THIS CODE
 """
 from __future__ import print_function
 from os.path import isfile
@@ -20,6 +22,7 @@ import string
 import random
 # =============================================================================
 # Dictionary element access simplifier
+# Credits to https://stackoverflow.com/questions/2352181/how-to-use-a-dot-to-access-members-of-dictionary
 # =============================================================================
 class Map(dict):
 
