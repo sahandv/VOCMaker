@@ -71,7 +71,7 @@ def get_expected_object_size(xmin,ymin,xmax,ymax,orig_h,orig_w,new_h,new_w):
 # Project init
 # Set file path
 # =============================================================================
-label_white_list = {33,34,35,36,37,38,39,81}
+label_white_list = {33,34,35,36,37,38,39,81} # Change this to anything you like. Use http://apolloscape.auto/scene.html
 make_additional_zeros = False
 blackilist_to_other_label_chance = 50 ;   # Percentage
 source_dir_root = '/media/sahand/Archive A/DataSets/Baidu/road01_ins/Label'
