@@ -80,6 +80,7 @@ blackilist_to_other_label_chance = 50 ;   # Percentage
 source_dir_root = '/media/sahand/Archive A/DataSets/Baidu/road01_ins/Label'
 output_dir_root = '/media/sahand/Archive A/DataSets/BaiduVOC_01/'
 expected_network_input_size = [300,300];
+display_progress = False
 # =============================================================================
 # Scan and iterate over source directory 
 # =============================================================================
@@ -88,7 +89,8 @@ for root, dirs, files in os.walk(source_dir_root):
     for file in files:
         if file.endswith(".json"):
             file_path = os.path.join(root, file)
-            print(file_path)
+            if display_progress == True:
+                print(file_path)
             # =============================================================================
             # Read and parse JSON
             # =============================================================================            
