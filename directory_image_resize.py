@@ -16,10 +16,11 @@ import os
 # =============================================================================
 # Inputs
 # =============================================================================
-input_dir = '/home'
-output_dir = '/home/resized/'
+input_dir = '/media/sahand/Archive A/DataSets/BaiduVOC_08_10/JPEGImages'
+output_dir = '/media/sahand/Archive A/DataSets/BaiduVOC_08_10/JPEGImages_small/'
 image_ext = '.jpg'
 display_progress = False
+height_size = 720
 # =============================================================================
 # Code
 # =============================================================================
@@ -54,6 +55,6 @@ for root, dirs, files in os.walk(input_dir):
                 print(file_path)
 
             img = cv2.imread(file_path)
-            img = image_resize(img, height = 720)
+            img = image_resize(img, height = height_size)
             cv2.imwrite(output_dir+file_name,img)
             
