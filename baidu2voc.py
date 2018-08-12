@@ -10,6 +10,7 @@ USE PYTHON 2.7 FOR THIS CODE
 from __future__ import print_function
 from os.path import isfile
 import json as js
+import cv2 as cv2
 import random
 #import xml.etree.ElementTree as et
 from lxml import etree as et
@@ -20,6 +21,20 @@ import glob
 from shutil import copyfile
 import string
 import random
+
+# =============================================================================
+# Project init
+# Set file path
+# =============================================================================
+label_white_list = {33,34,35,36,37,38,39,81} # Change this to anything you like. Use http://apolloscape.auto/scene.html
+make_additional_zeros = False
+blackilist_to_other_label_chance = 50 ;   # Percentage
+source_dir_root = '/media/sahand/Archive A/DataSets/Baidu/road01_ins/Label'
+output_dir_root = '/media/sahand/Archive A/DataSets/BaiduVOC_01/'
+expected_network_input_size = [300,300];
+new_height = 720
+display_progress = False
+
 # =============================================================================
 # Dictionary element access simplifier
 # Credits to https://stackoverflow.com/questions/2352181/how-to-use-a-dot-to-access-members-of-dictionary
@@ -53,34 +68,44 @@ class Map(dict):
     def __delitem__(self, key):
         super(Map, self).__delitem__(key)
         del self.__dict__[key]
-
+        
+# =============================================================================
+# Other functions:
+# =============================================================================
 def random_char(y):
     return ''.join(random.choice(string.letters) for x in range(y))
 
-def get_expected_object_size(xmin,ymin,xmax,ymax,orig_h,orig_w,new_h,new_w):
+
+def get_expected_object_area(xmin,ymin,xmax,ymax,ratio):
+    # ratio is new/original size   
     x = xmax-xmin
     y = ymax-ymin
     
-    h_ratio = orig_h/new_h
-    w_ratio = orig_w/orig_w
+    h_ratio = ratio
+    w_ratio = ratio
     
-    new_x = x/w_ratio
-    new_y = y/h_ratio
+    new_x = x*w_ratio
+    new_y = y*h_ratio
     
     return new_x*new_y
-    
 
-# =============================================================================
-# Project init
-# Set file path
-# =============================================================================
-label_white_list = {33,34,35,36,37,38,39,81} # Change this to anything you like. Use http://apolloscape.auto/scene.html
-make_additional_zeros = False
-blackilist_to_other_label_chance = 50 ;   # Percentage
-source_dir_root = '/media/sahand/Archive A/DataSets/Baidu/road01_ins/Label'
-output_dir_root = '/media/sahand/Archive A/DataSets/BaiduVOC_01/'
-expected_network_input_size = [300,300];
-display_progress = False
+
+def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
+    # usage: img = image_resize(img, height = 720)
+    dim = None
+    (h, w) = image.shape[:2]
+    if width is None and height is None:
+        return image
+    if width is None:
+
+        r = height / float(h)
+        dim = (int(w * r), height)
+    else:
+        r = width / float(w)
+        dim = (width, int(h * r))
+    resized = cv2.resize(image, dim, interpolation = inter)
+    return resized
+
 # =============================================================================
 # Scan and iterate over source directory 
 # =============================================================================
@@ -121,7 +146,7 @@ for root, dirs, files in os.walk(source_dir_root):
             
             
             # =============================================================================
-            # Generate output paths for image and annotation
+            # Generate input/output paths and names for image and annotation
             # =============================================================================
             file_name_img = str.split(os.path.basename(file_path),'.')[0]+'.jpg'
             file_name_xml = str.split(os.path.basename(file_path),'.')[0]+'.xml'
@@ -145,8 +170,14 @@ for root, dirs, files in os.walk(source_dir_root):
             xml_out_path = dest_img_path+file_name_xml
             json_out_path = dest_annot_json_path+file_name_json
             
-            folder_name = str.split(file_path_img_source,os.sep)[len(str.split(file_path_img_source,'/'))-3]
+            folder_name = str.split(file_path_img_source,os.sep)[len(str.split(file_path_img_source,os.sep))-3]
             
+            # =============================================================================
+            # Read Image            
+            # =============================================================================
+            img = cv2.imread(file_path_img_source)
+            orig_height, orig_width, channels = img.shape
+            resize_ratio = new_height/orig_height
             # =============================================================================
             # Render XML
             # =============================================================================
@@ -166,8 +197,8 @@ for root, dirs, files in os.walk(source_dir_root):
             xml_filename.text = file_name_img
             xml_path.text = img_out_path
             xml_database.text = 'Unknown'
-            xml_width.text = str(m.imgWidth)
-            xml_height.text = str(m.imgHeight)
+            xml_width.text = str(m.imgWidth*resize_ratio)
+            xml_height.text = str(m.imgHeight*resize_ratio)
             xml_depth.text = '3'                                               # For RGB/color images
             xml_segmented.text = '0'
             
@@ -176,55 +207,36 @@ for root, dirs, files in os.walk(source_dir_root):
             for i_objects in range(len(objects)):
                 label = objects[i_objects]['label']
                 if label in label_white_list:
-                    xml_object = et.SubElement(xml_annotation, 'object')
-                    xml_name = et.SubElement(xml_object,'name')
-                    xml_pose = et.SubElement(xml_object,'pose')
-                    xml_truncated = et.SubElement(xml_object,'truncated')
-                    xml_difficult = et.SubElement(xml_object,'difficult')
-                    xml_bndbox = et.SubElement(xml_object,'bndbox')
-                    xml_xmin = et.SubElement(xml_bndbox,'xmin')
-                    xml_ymin = et.SubElement(xml_bndbox,'ymin')
-                    xml_xmax = et.SubElement(xml_bndbox,'xmax')
-                    xml_ymax = et.SubElement(xml_bndbox,'ymax')
-                    
-                    xml_name.text = str(label)
-                    xml_pose.text = 'Unspecified'
-                    xml_truncated.text = '0'
-                    xml_difficult.text = '0'
-
                     xmax = 0
                     ymax = 0
-                    xmin = m.imgWidth
-                    ymin = m.imgHeight
+                    xmin = m.imgWidth*resize_ratio
+                    ymin = m.imgHeight*resize_ratio
                     
                     for i_points in range(len(objects[i_objects]['polygons'][0])):
-                        
-                        if objects[i_objects]['polygons'][0][i_points][0] > xmax:
-                            xmax = objects[i_objects]['polygons'][0][i_points][0]
-                        if objects[i_objects]['polygons'][0][i_points][1] > ymax:
-                            ymax = objects[i_objects]['polygons'][0][i_points][1]
-                        if objects[i_objects]['polygons'][0][i_points][0] < xmin:
-                            xmin = objects[i_objects]['polygons'][0][i_points][0]
-                        if objects[i_objects]['polygons'][0][i_points][1] < ymin:
-                            ymin = objects[i_objects]['polygons'][0][i_points][1]
-                        
-                    if xmin-5 >= 0:
-                        xmin = xmin-5
-                    if ymin-5 >= 0:
-                        ymin = ymin-5
-                        
-                    if xmax+5 <= m.imgWidth:
-                        xmax = xmax+5
-                    if ymax+5 <= m.imgheight:
-                        ymax = ymax+5
-                        
-                    xml_xmin.text = str(xmin)
-                    xml_ymin.text = str(ymin)
-                    xml_xmax.text = str(xmax)
-                    xml_ymax.text = str(ymax)
+                        x_tmp = objects[i_objects]['polygons'][0][i_points][0]*resize_ratio
+                        y_tmp = objects[i_objects]['polygons'][0][i_points][1]*resize_ratio
+                        if  x_tmp > xmax:
+                            xmax = x_tmp
+                        if  y_tmp > ymax:
+                            ymax = y_tmp
+                        if  x_tmp < xmin:
+                            xmin = x_tmp
+                        if  y_tmp < ymin:
+                            ymin = y_tmp
+                            
+                    expected_object_area = get_expected_object_area(xmin,ymin,xmax,ymax,resize_ratio)
                     
-                else:
-                    if random.random() < blackilist_to_other_label_chance and make_additional_zeros == True:
+                    if expected_object_area > 100:
+                        if xmin-5 >= 0:
+                            xmin = xmin-5
+                        if ymin-5 >= 0:
+                            ymin = ymin-5
+                            
+                        if xmax+5 <= m.imgWidth:
+                            xmax = xmax+5
+                        if ymax+5 <= m.imgheight:
+                            ymax = ymax+5
+                            
                         xml_object = et.SubElement(xml_annotation, 'object')
                         xml_name = et.SubElement(xml_object,'name')
                         xml_pose = et.SubElement(xml_object,'pose')
@@ -236,41 +248,68 @@ for root, dirs, files in os.walk(source_dir_root):
                         xml_xmax = et.SubElement(xml_bndbox,'xmax')
                         xml_ymax = et.SubElement(xml_bndbox,'ymax')
                         
-                        xml_name.text = str(0)
+                        xml_name.text = str(label)
                         xml_pose.text = 'Unspecified'
                         xml_truncated.text = '0'
                         xml_difficult.text = '0'
-                        
-                        xmax = 0
-                        ymax = 0
-                        xmin = m.imgWidth
-                        ymin = m.imgHeight
-                        
-                        for i_points in range(len(objects[i_objects]['polygons'][0])):
-                            
-                            if objects[i_objects]['polygons'][0][i_points][0] > xmax:
-                                xmax = objects[i_objects]['polygons'][0][i_points][0]
-                            if objects[i_objects]['polygons'][0][i_points][1] > ymax:
-                                ymax = objects[i_objects]['polygons'][0][i_points][1]
-                            if objects[i_objects]['polygons'][0][i_points][0] < xmin:
-                                xmin = objects[i_objects]['polygons'][0][i_points][0]
-                            if objects[i_objects]['polygons'][0][i_points][1] < ymin:
-                                ymin = objects[i_objects]['polygons'][0][i_points][1]
-                            
-                        if xmin-5 >= 0:
-                            xmin = xmin-5
-                        if ymin-5 >= 0:
-                            ymin = ymin-5
-                            
-                        if xmax+5 <= m.imgWidth:
-                            xmax = xmax+5
-                        if ymax+5 <= m.imgheight:
-                            ymax = ymax+5
                             
                         xml_xmin.text = str(xmin)
                         xml_ymin.text = str(ymin)
                         xml_xmax.text = str(xmax)
                         xml_ymax.text = str(ymax)
+                    
+                else:
+                    if random.random() < blackilist_to_other_label_chance and make_additional_zeros == True:
+                        xmax = 0
+                        ymax = 0
+                        xmin = m.imgWidth*resize_ratio
+                        ymin = m.imgHeight*resize_ratio
+                        
+                        for i_points in range(len(objects[i_objects]['polygons'][0])):
+                            x_tmp = objects[i_objects]['polygons'][0][i_points][0]*resize_ratio
+                            y_tmp = objects[i_objects]['polygons'][0][i_points][1]*resize_ratio
+                            if  x_tmp > xmax:
+                                xmax = x_tmp
+                            if  y_tmp > ymax:
+                                ymax = y_tmp
+                            if  x_tmp < xmin:
+                                xmin = x_tmp
+                            if  y_tmp < ymin:
+                                ymin = y_tmp
+                                
+                        expected_object_area = get_expected_object_area(xmin,ymin,xmax,ymax,resize_ratio)
+                        
+                        if expected_object_area > 100:
+                            if xmin-5 >= 0:
+                                xmin = xmin-5
+                            if ymin-5 >= 0:
+                                ymin = ymin-5
+                                
+                            if xmax+5 <= m.imgWidth:
+                                xmax = xmax+5
+                            if ymax+5 <= m.imgheight:
+                                ymax = ymax+5
+                                
+                            xml_object = et.SubElement(xml_annotation, 'object')
+                            xml_name = et.SubElement(xml_object,'name')
+                            xml_pose = et.SubElement(xml_object,'pose')
+                            xml_truncated = et.SubElement(xml_object,'truncated')
+                            xml_difficult = et.SubElement(xml_object,'difficult')
+                            xml_bndbox = et.SubElement(xml_object,'bndbox')
+                            xml_xmin = et.SubElement(xml_bndbox,'xmin')
+                            xml_ymin = et.SubElement(xml_bndbox,'ymin')
+                            xml_xmax = et.SubElement(xml_bndbox,'xmax')
+                            xml_ymax = et.SubElement(xml_bndbox,'ymax')
+                            
+                            xml_name.text = str(label)
+                            xml_pose.text = 'Unspecified'
+                            xml_truncated.text = '0'
+                            xml_difficult.text = '0'
+                                
+                            xml_xmin.text = str(xmin)
+                            xml_ymin.text = str(ymin)
+                            xml_xmax.text = str(xmax)
+                            xml_ymax.text = str(ymax)
             
             
             # =============================================================================
@@ -285,9 +324,10 @@ for root, dirs, files in os.walk(source_dir_root):
                 f1.write(mydata)
             
             try:
-                copyfile(file_path_img_source, img_out_path)
-            except EnvironmentError:
-                    print("*Error occured while copying image '",file_path_img_source,"' to '",img_out_path,"'")
+                img = image_resize(img, height = new_height)
+                cv2.imwrite(img_out_path,img)
+            except cv2.error as e:
+                    print("*Error occured while saving image '",file_path_img_source,"' to '",img_out_path,"'")
             
             try:
                 copyfile(file_path, json_out_path)
