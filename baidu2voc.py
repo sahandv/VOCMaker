@@ -135,11 +135,11 @@ for root, dirs, files in os.walk(source_dir_root):
             
             dest_img_path = output_dir_root+'JPEGImages/'
             dest_set_path = output_dir_root+'ImageSets/Main/'
-            dest_annot_path = output_dir_root+'Annotations/'
+            dest_xml_path = output_dir_root+'Annotations/'
             dest_annot_json_path = output_dir_root+'Annotations_JSON/'
             if not os.path.exists(output_dir_root):
                 os.makedirs(output_dir_root)
-                os.makedirs(dest_annot_path)
+                os.makedirs(dest_xml_path)
                 os.makedirs(dest_set_path)
                 os.makedirs(dest_img_path)
                 os.makedirs(dest_annot_json_path)
@@ -167,7 +167,7 @@ for root, dirs, files in os.walk(source_dir_root):
                 file_name_json =str.split(os.path.basename(file_path),'.')[0]+chars+'.json'
                 
             img_out_path = dest_img_path+file_name_img
-            xml_out_path = dest_img_path+file_name_xml
+            xml_out_path = dest_xml_path+file_name_xml
             json_out_path = dest_annot_json_path+file_name_json
             
             folder_name = str.split(file_path_img_source,os.sep)[len(str.split(file_path_img_source,os.sep))-3]
@@ -350,7 +350,7 @@ for root, dirs, files in os.walk(output_dir_root+'Annotations/'):
             
 TrainDataRaw = pd.DataFrame(all_files)
 
-remove_n = int(TrainDataRaw.shape[0]/5)
+remove_n = int(TrainDataRaw.shape[0]/7)
 drop_indices = np.random.choice(TrainDataRaw.index, remove_n, replace=False)
 train_val_set = TrainDataRaw.drop(drop_indices)
 remove_n = int(TrainDataRaw.shape[0]/8)
