@@ -29,11 +29,11 @@ import random
 label_white_list = {33,34,35,36,37,38,39,81} # Change this to anything you like. Use http://apolloscape.auto/scene.html
 make_additional_zeros = False
 blackilist_to_other_label_chance = 50 ;   # Percentage
-source_dir_root = '/media/sahand/Archive A/DataSets/Baidu/road01_ins/Label'
-output_dir_root = '/media/sahand/Archive A/DataSets/BaiduVOC_01/'
+source_dir_root = '/media/sahand/Archive A/DataSets/Baidu/road03_ins/Label'
+output_dir_root = '/media/sahand/Archive A/DataSets/BaiduVOC_08_13/'
 expected_network_input_size = [300,300];
 new_height = 720
-display_progress = False
+display_progress = True
 
 # =============================================================================
 # Dictionary element access simplifier
@@ -76,18 +76,11 @@ def random_char(y):
     return ''.join(random.choice(string.letters) for x in range(y))
 
 
-def get_expected_object_area(xmin,ymin,xmax,ymax,ratio):
-    # ratio is new/original size   
+def get_expected_object_area(xmin,ymin,xmax,ymax):
     x = xmax-xmin
     y = ymax-ymin
     
-    h_ratio = ratio
-    w_ratio = ratio
-    
-    new_x = x*w_ratio
-    new_y = y*h_ratio
-    
-    return new_x*new_y
+    return x*y
 
 
 def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
@@ -177,7 +170,7 @@ for root, dirs, files in os.walk(source_dir_root):
             # =============================================================================
             img = cv2.imread(file_path_img_source)
             orig_height, orig_width, channels = img.shape
-            resize_ratio = new_height/orig_height
+            resize_ratio = float(float(new_height)/float(orig_height))
             # =============================================================================
             # Render XML
             # =============================================================================
@@ -197,8 +190,8 @@ for root, dirs, files in os.walk(source_dir_root):
             xml_filename.text = file_name_img
             xml_path.text = img_out_path
             xml_database.text = 'Unknown'
-            xml_width.text = str(m.imgWidth*resize_ratio)
-            xml_height.text = str(m.imgHeight*resize_ratio)
+            xml_width.text = str(int(m.imgWidth*resize_ratio))
+            xml_height.text = str(int(m.imgHeight*resize_ratio))
             xml_depth.text = '3'                                               # For RGB/color images
             xml_segmented.text = '0'
             
@@ -224,18 +217,18 @@ for root, dirs, files in os.walk(source_dir_root):
                         if  y_tmp < ymin:
                             ymin = y_tmp
                             
-                    expected_object_area = get_expected_object_area(xmin,ymin,xmax,ymax,resize_ratio)
+                    expected_object_area = get_expected_object_area(xmin,ymin,xmax,ymax)
                     
                     if expected_object_area > 100:
-                        if xmin-5 >= 0:
-                            xmin = xmin-5
-                        if ymin-5 >= 0:
-                            ymin = ymin-5
+                        if xmin-3 >= 0:
+                            xmin = xmin-3
+                        if ymin-3 >= 0:
+                            ymin = ymin-3
                             
-                        if xmax+5 <= m.imgWidth:
-                            xmax = xmax+5
-                        if ymax+5 <= m.imgheight:
-                            ymax = ymax+5
+                        if xmax+3 <= int(m.imgWidth*resize_ratio):
+                            xmax = xmax+3
+                        if ymax+3 <= int(m.imgHeight*resize_ratio):
+                            ymax = ymax+3
                             
                         xml_object = et.SubElement(xml_annotation, 'object')
                         xml_name = et.SubElement(xml_object,'name')
@@ -253,10 +246,10 @@ for root, dirs, files in os.walk(source_dir_root):
                         xml_truncated.text = '0'
                         xml_difficult.text = '0'
                             
-                        xml_xmin.text = str(xmin)
-                        xml_ymin.text = str(ymin)
-                        xml_xmax.text = str(xmax)
-                        xml_ymax.text = str(ymax)
+                        xml_xmin.text = str(int(xmin))
+                        xml_ymin.text = str(int(ymin))
+                        xml_xmax.text = str(int(xmax))
+                        xml_ymax.text = str(int(ymax))
                     
                 else:
                     if random.random() < blackilist_to_other_label_chance and make_additional_zeros == True:
@@ -277,18 +270,18 @@ for root, dirs, files in os.walk(source_dir_root):
                             if  y_tmp < ymin:
                                 ymin = y_tmp
                                 
-                        expected_object_area = get_expected_object_area(xmin,ymin,xmax,ymax,resize_ratio)
+                        expected_object_area = get_expected_object_area(xmin,ymin,xmax,ymax)
                         
                         if expected_object_area > 100:
-                            if xmin-5 >= 0:
-                                xmin = xmin-5
-                            if ymin-5 >= 0:
-                                ymin = ymin-5
+                            if xmin-3 >= 0:
+                                xmin = xmin-3
+                            if ymin-3 >= 0:
+                                ymin = ymin-3
                                 
-                            if xmax+5 <= m.imgWidth:
-                                xmax = xmax+5
-                            if ymax+5 <= m.imgheight:
-                                ymax = ymax+5
+                            if xmax+3 <= int(m.imgWidth*resize_ratio):
+                                xmax = xmax+3
+                            if ymax+3 <= int(m.imgHeight*resize_ratio):
+                                ymax = ymax+3
                                 
                             xml_object = et.SubElement(xml_annotation, 'object')
                             xml_name = et.SubElement(xml_object,'name')
@@ -306,10 +299,10 @@ for root, dirs, files in os.walk(source_dir_root):
                             xml_truncated.text = '0'
                             xml_difficult.text = '0'
                                 
-                            xml_xmin.text = str(xmin)
-                            xml_ymin.text = str(ymin)
-                            xml_xmax.text = str(xmax)
-                            xml_ymax.text = str(ymax)
+                            xml_xmin.text = str(int(xmin))
+                            xml_ymin.text = str(int(ymin))
+                            xml_xmax.text = str(int(xmax))
+                            xml_ymax.text = str(int(ymax))
             
             
             # =============================================================================
@@ -340,9 +333,9 @@ for root, dirs, files in os.walk(source_dir_root):
 # =============================================================================
                     
 all_files = []
-for root, dirs, files in os.walk(output_dir_root+'Annotations/'):
+for root, dirs, files in os.walk(output_dir_root+'JPEGImages/'):
     for file in files:
-        if file.endswith(".xml"):
+        if file.endswith(".jpg"):
             file_path = os.path.join(root, file)
             print(file_path)
             file_name = str.split(os.path.basename(file_path),'.')[0]
