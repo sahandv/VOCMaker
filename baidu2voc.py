@@ -29,10 +29,10 @@ import random
 label_white_list = {33,34,35,36,37,38,39,81} # Change this to anything you like. Use http://apolloscape.auto/scene.html
 make_additional_zeros = False
 blackilist_to_other_label_chance = 50 ;   # Percentage
-source_dir_root = '/media/sahand/Archive A/DataSets/Baidu/road03_ins/Label'
-output_dir_root = '/media/sahand/Archive A/DataSets/BaiduVOC_08_13/'
+source_dir_root = '/media/sahand/Archive A/DataSets/Baidu/road01_ins/Label'
+output_dir_root = '/media/sahand/Archive A/DataSets/BaiduVOC_02/'
 expected_network_input_size = [300,300];
-new_height = 720
+new_height = 2710
 display_progress = True
 
 # =============================================================================
@@ -219,7 +219,7 @@ for root, dirs, files in os.walk(source_dir_root):
                             
                     expected_object_area = get_expected_object_area(xmin,ymin,xmax,ymax)
                     
-                    if expected_object_area > 100:
+                    if expected_object_area > 10:
                         if xmin-3 >= 0:
                             xmin = xmin-3
                         if ymin-3 >= 0:
@@ -272,7 +272,7 @@ for root, dirs, files in os.walk(source_dir_root):
                                 
                         expected_object_area = get_expected_object_area(xmin,ymin,xmax,ymax)
                         
-                        if expected_object_area > 100:
+                        if expected_object_area > 10:
                             if xmin-3 >= 0:
                                 xmin = xmin-3
                             if ymin-3 >= 0:
@@ -343,11 +343,15 @@ for root, dirs, files in os.walk(output_dir_root+'JPEGImages/'):
             
 TrainDataRaw = pd.DataFrame(all_files)
 
-remove_n = int(TrainDataRaw.shape[0]/7)
+# TrainVal set
+remove_n = int(TrainDataRaw.shape[0]/6)
 drop_indices = np.random.choice(TrainDataRaw.index, remove_n, replace=False)
 train_val_set = TrainDataRaw.drop(drop_indices)
-remove_n = int(TrainDataRaw.shape[0]/8)
+# Test set (remaining)
 test_set = TrainDataRaw.loc[drop_indices]
+
+# Train and Val sets
+remove_n = int(train_val_set.shape[0]/5)
 drop_indices = np.random.choice(train_val_set.index, remove_n, replace=False)
 train_set = train_val_set.drop(drop_indices)
 val_set = train_val_set.loc[drop_indices]
