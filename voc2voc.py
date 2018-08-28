@@ -14,7 +14,7 @@ import cv2 as cv2
 import random
 import sys
 #import xml.etree.ElementTree as et
-from lxml import etree as et
+#from lxml import etree as et
 import xml.etree.ElementTree as ET
 import pandas as pd
 import numpy as np
@@ -30,11 +30,11 @@ import random
 # Project init
 # Set file path
 # =============================================================================
-label_white_list = {33,34,35,36,37,38,39,81} # Change this to anything you like. Use http://apolloscape.auto/scene.html
+label_white_list = {'34','39','35','36','37','38','81'} # Change this to anything you like. Use http://apolloscape.auto/scene.html
 make_additional_zeros = False
 blackilist_to_other_label_chance = 50 ;   # Percentage
-source_dir_root = '/media/sahand/Archive A/DataSets/BaiduVOC_02/Annotations'
-output_dir_root = '/media/sahand/Archive A/DataSets/BaiduVOC_02/newAnnotations'
+source_dir_root = '/home/sahand/sample xml/baidu'
+output_dir_root = '/home/sahand/sample xml/baidu_rework'
 expected_network_input_size = [300,300];
 display_progress = True
 
@@ -58,10 +58,29 @@ for root, dirs, files in os.walk(source_dir_root):
             # Read and parse JSON
             # =============================================================================    
             tree = ET.parse(file_path)
-            root = tree.getroot()
-            for child in root:
-                print(child.tag, child.attrib)
-            
+            eroot = tree.getroot()
+            eroot_original = eroot.copy()
+            for child in eroot_original:
+                if child.tag == "object":
+                    if child._children[0].text in label_white_list:
+#                        This class is white listed
+                        print(child._children[0].text+" is white listed")
+                    else:
+#                        Thisclass is not white listed and this child will be removed
+                        print(child._children[0].text+" is black listed")
+                        eroot.remove(child)
+                        
+            # =============================================================================
+            # Save output to file            
+            # =============================================================================
+            output_xml = ET.tostring(eroot, encoding='utf8').decode('utf8')
+            with open(os.path.join(output_dir_root, file), "w+") as f1:
+                f1.write(output_xml)
+
+
+                        
+                        
+                        
             
             
             
