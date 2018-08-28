@@ -21,7 +21,10 @@ import glob
 from shutil import copyfile
 import string
 import random
-
+# =============================================================================
+# This code is intended to generate VOC formatted data out of Baidu dataset. It
+# gets JSON annotations and generates XML files and other directory structures 
+# as required.
 # =============================================================================
 # Project init
 # Set file path
