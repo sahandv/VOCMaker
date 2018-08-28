@@ -17,6 +17,7 @@ from lxml import etree as et
 import pandas as pd
 import numpy as np
 import os
+import sys
 import glob
 from shutil import copyfile
 import string
@@ -38,6 +39,8 @@ expected_network_input_size = [300,300];
 new_height = 2710
 display_progress = True
 
+if not os.path.exists(source_dir_root):
+    sys.exit("Invalid source directory! Breaking...")
 # =============================================================================
 # Dictionary element access simplifier
 # Credits to https://stackoverflow.com/questions/2352181/how-to-use-a-dot-to-access-members-of-dictionary
