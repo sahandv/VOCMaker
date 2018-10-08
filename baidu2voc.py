@@ -144,9 +144,9 @@ for root, dirs, files in os.walk(source_dir_root):
                 os.makedirs(dest_annot_json_path)
             
             
-            # =============================================================================
+            # =================================================================
             # Generate input/output paths and names for image and annotation
-            # =============================================================================
+            # =================================================================
             file_name_img = str.split(os.path.basename(file_path),'.')[0]+'.jpg'
             file_name_xml = str.split(os.path.basename(file_path),'.')[0]+'.xml'
             file_name_json = os.path.basename(file_path)
@@ -171,15 +171,15 @@ for root, dirs, files in os.walk(source_dir_root):
             
             folder_name = str.split(file_path_img_source,os.sep)[len(str.split(file_path_img_source,os.sep))-3]
             
-            # =============================================================================
+            # =================================================================
             # Read Image            
-            # =============================================================================
+            # =================================================================
             img = cv2.imread(file_path_img_source)
             orig_height, orig_width, channels = img.shape
             resize_ratio = float(float(new_height)/float(orig_height))
-            # =============================================================================
+            # =================================================================
             # Render XML
-            # =============================================================================
+            # =================================================================
             xml_annotation = et.Element('annotation')
             xml_folder = et.SubElement(xml_annotation, 'folder')
             xml_filename = et.SubElement(xml_annotation, 'filename')
@@ -311,14 +311,14 @@ for root, dirs, files in os.walk(source_dir_root):
                             xml_ymax.text = str(int(ymax))
             
             
-            # =============================================================================
+            # =================================================================
             # Generate XML
-            # =============================================================================
+            # =================================================================
             mydata = et.tostring(xml_annotation, pretty_print=True)  
             
-            # =============================================================================
+            # =================================================================
             # Copy Image and XML to Dest
-            # =============================================================================
+            # =================================================================
             with open(xml_out_path, "w+") as f1:
                 f1.write(mydata)
             
