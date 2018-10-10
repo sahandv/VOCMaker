@@ -28,9 +28,9 @@ import random
 # =============================================================================
 # Baidu - Voc label conversion dictionary
 # =============================================================================
-baidu_labels_num_name = {0:'other',1:'rover',17:'sky',33:'car',161:'car_group',34:'motorbicycle'
+baidu_labels_num_name = {0:'other',1:'rover',17:'sky',33:'car',161:'car_group',34:'motorbike'
               ,162:'motorbicycle_group',35:'bicycle',163:'bicycle_group',36:'person'
-              ,164:'person_group',37:'rider',165:'rider_group',38:'truck'
+              ,164:'person_group',37:'person',165:'rider_group',38:'bus'
               ,166:'truck_group',39:'bus',167:'bus_group',40:'tricycle'
               ,168:'tricycle_group',49:'road',50:'siderwalk',65:'traffic_cone'
               ,66:'road_pile',67:'fence',81:'traffic_light',82:'pole'
@@ -41,12 +41,12 @@ baidu_labels_num_name = {0:'other',1:'rover',17:'sky',33:'car',161:'car_group',3
 # Project init
 # Set file path
 # =============================================================================
-label_white_list = {33,34,35,36,37,38,39,81} # Change this to anything you like. Use http://apolloscape.auto/scene.html
+label_white_list = {33,34,35,36,37,38,39} # Change this to anything you like. Use http://apolloscape.auto/scene.html
 make_additional_zeros = False
 blackilist_to_other_label_chance = 50 ;   # Percentage
 source_dir_root = '/media/sahand/Archive A/DataSets/Baidu/road01_ins/Label'
 output_dir_root = '/media/sahand/Archive A/DataSets/BaiduVOC_02/'
-expected_network_input_size = [300,300];
+resize_image = True # Don't turn it off yet. Not tested yet!
 new_height = 2710
 display_progress = True
 
@@ -187,7 +187,11 @@ for root, dirs, files in os.walk(source_dir_root):
             # =================================================================
             img = cv2.imread(file_path_img_source)
             orig_height, orig_width, channels = img.shape
-            resize_ratio = float(float(new_height)/float(orig_height))
+            # Resize only if resize_image flag is True
+            if resize_image == True:
+                resize_ratio = float(float(new_height)/float(orig_height))
+            else:
+                resize_ratio = 1
             # =================================================================
             # Render XML
             # =================================================================
@@ -235,8 +239,9 @@ for root, dirs, files in os.walk(source_dir_root):
                             ymin = y_tmp
                             
                     expected_object_area = get_expected_object_area(xmin,ymin,xmax,ymax)
-                    
-                    if expected_object_area > 10:
+
+                    # If object area is small, enter only if we don't care about area
+                    if expected_object_area > 10 or resize_image == False:
                         if xmin-3 >= 0:
                             xmin = xmin-3
                         if ymin-3 >= 0:
@@ -289,7 +294,7 @@ for root, dirs, files in os.walk(source_dir_root):
                                 
                         expected_object_area = get_expected_object_area(xmin,ymin,xmax,ymax)
                         
-                        if expected_object_area > 10:
+                        if expected_object_area > 10 or resize_image == False:
                             if xmin-3 >= 0:
                                 xmin = xmin-3
                             if ymin-3 >= 0:
@@ -333,11 +338,18 @@ for root, dirs, files in os.walk(source_dir_root):
             with open(xml_out_path, "w+") as f1:
                 f1.write(mydata)
             
-            try:
-                img = image_resize(img, height = new_height)
-                cv2.imwrite(img_out_path,img)
-            except cv2.error as e:
-                    print("*Error occured while saving image '",file_path_img_source,"' to '",img_out_path,"'")
+            if resize_image == True:    
+                try:
+                    img = image_resize(img, height = new_height)
+                    cv2.imwrite(img_out_path,img)
+                except cv2.error as e:
+                        print("*Error occured while saving image '",file_path_img_source,"' to '",img_out_path,"'")
+            else:
+                 try:
+                    copyfile(file_path_img_source, img_out_path)
+                except EnvironmentError:
+                        print("*Error occured while copying image '",file_path_img_source,"' to '",img_out_path,"'")
+                
             
             try:
                 copyfile(file_path, json_out_path)
