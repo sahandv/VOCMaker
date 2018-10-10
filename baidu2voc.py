@@ -44,9 +44,9 @@ baidu_labels_num_name = {0:'other',1:'rover',17:'sky',33:'car',161:'car_group',3
 label_white_list = {33,34,35,36,37,38,39} # Change this to anything you like. Use http://apolloscape.auto/scene.html
 make_additional_zeros = False
 blackilist_to_other_label_chance = 50 ;   # Percentage
-source_dir_root = '/media/sahand/Archive A/DataSets/Baidu/road01_ins/Label'
-output_dir_root = '/media/sahand/Archive A/DataSets/BaiduVOC_02/'
-resize_image = True # Don't turn it off yet. Not tested yet!
+source_dir_root = '/media/sahand/3C8FB71F10E37A5E/Baidu/road02_ins/Label'
+output_dir_root = '/media/sahand/3C8FB71F10E37A5E/Baidu/BaiduVOC_02/'
+resize_image = True # Turn off at your own risk.
 new_height = 2710
 display_progress = True
 
