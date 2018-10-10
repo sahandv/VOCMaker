@@ -35,7 +35,7 @@ new_labels = {0:'other',1:'rover',17:'sky',33:'car',161:'car_group',34:'motorbic
               ,166:'truck_group',39:'bus',167:'bus_group',40:'tricycle'
               ,168:'tricycle_group',49:'road',50:'siderwalk',65:'traffic_cone'
               ,66:'road_pile',67:'fence',81:'traffic_light',82:'pole'
-              ,83:'traffic_sign',84:'wall',85:'dustbin',86:'billboard
+              ,83:'traffic_sign',84:'wall',85:'dustbin',86:'billboard'
               ,97:'building',98:'bridge',99:'tunnel',100:'overpass'
               ,113:'vegatation',255:'unlabeled'}
 # =============================================================================
