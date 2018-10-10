@@ -343,18 +343,18 @@ for root, dirs, files in os.walk(source_dir_root):
                     img = image_resize(img, height = new_height)
                     cv2.imwrite(img_out_path,img)
                 except cv2.error as e:
-                        print("*Error occured while saving image '",file_path_img_source,"' to '",img_out_path,"'")
+                    print("*Error occured while saving image '",file_path_img_source,"' to '",img_out_path,"'")
             else:
-                 try:
+                try:
                     copyfile(file_path_img_source, img_out_path)
                 except EnvironmentError:
-                        print("*Error occured while copying image '",file_path_img_source,"' to '",img_out_path,"'")
+                    print("*Error occured while copying image '",file_path_img_source,"' to '",img_out_path,"'")
                 
             
             try:
                 copyfile(file_path, json_out_path)
             except EnvironmentError:
-                    print("*Error occured while copying json '",file_path,"' to '",json_out_path,"'")
+                print("*Error occured while copying json '",file_path,"' to '",json_out_path,"'")
 
 
 # =============================================================================
