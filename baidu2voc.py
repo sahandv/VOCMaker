@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Jul 22 21:09:19 2018
-
 @author: https://github.com/sahandv
 
 USE PYTHON 2.7 FOR THIS CODE
@@ -29,7 +28,7 @@ import random
 # =============================================================================
 # Baidu - Voc label conversion dictionary
 # =============================================================================
-new_labels = {0:'other',1:'rover',17:'sky',33:'car',161:'car_group',34:'motorbicycle'
+baidu_labels_num_name = {0:'other',1:'rover',17:'sky',33:'car',161:'car_group',34:'motorbicycle'
               ,162:'motorbicycle_group',35:'bicycle',163:'bicycle_group',36:'person'
               ,164:'person_group',37:'rider',165:'rider_group',38:'truck'
               ,166:'truck_group',39:'bus',167:'bus_group',40:'tricycle'
@@ -259,7 +258,7 @@ for root, dirs, files in os.walk(source_dir_root):
                         xml_xmax = et.SubElement(xml_bndbox,'xmax')
                         xml_ymax = et.SubElement(xml_bndbox,'ymax')
                         
-                        xml_name.text = str(label)
+                        xml_name.text = baidu_labels_num_name[label]
                         xml_pose.text = 'Unspecified'
                         xml_truncated.text = '0'
                         xml_difficult.text = '0'
@@ -312,7 +311,7 @@ for root, dirs, files in os.walk(source_dir_root):
                             xml_xmax = et.SubElement(xml_bndbox,'xmax')
                             xml_ymax = et.SubElement(xml_bndbox,'ymax')
                             
-                            xml_name.text = str(label)
+                            xml_name.text = baidu_labels_num_name[label]
                             xml_pose.text = 'Unspecified'
                             xml_truncated.text = '0'
                             xml_difficult.text = '0'
