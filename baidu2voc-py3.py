@@ -1,10 +1,10 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mon Jul 22 21:09:19 2018
+Created on Mon Oct 10 23:50:28 2018
 @author: https://github.com/sahandv
 
-USE PYTHON 2.7 FOR THIS CODE
+USE PYTHON 3.6 FOR THIS CODE
 """
 from __future__ import print_function
 from os.path import isfile
@@ -52,6 +52,18 @@ display_progress = True
 
 if not os.path.exists(source_dir_root):
     sys.exit("Invalid source directory! Breaking...")
+
+# =============================================================================
+# Info print
+# =============================================================================
+if resize_image==True:
+    print("resize images to height of: ",new_height)
+else:
+    print("don't resize images")
+    
+print("input directory: ",source_dir_root)
+print("output directory: ",output_dir_root)
+
 # =============================================================================
 # Dictionary element access simplifier
 # Credits to https://stackoverflow.com/questions/2352181/how-to-use-a-dot-to-access-members-of-dictionary
@@ -62,11 +74,11 @@ class Map(dict):
         super(Map, self).__init__(*args, **kwargs)
         for arg in args:
             if isinstance(arg, dict):
-                for k, v in arg.iteritems():
+                for k, v in arg.items():
                     self[k] = v
 
         if kwargs:
-            for k, v in kwargs.iteritems():
+            for k, v in kwargs.items():
                 self[k] = v
 
     def __getattr__(self, attr):
@@ -90,7 +102,7 @@ class Map(dict):
 # Other functions:
 # =============================================================================
 def random_char(y):
-    return ''.join(random.choice(string.letters) for x in range(y))
+    return ''.join(random.choice(string.ascii_letters) for x in range(y))
 
 
 def get_expected_object_area(xmin,ymin,xmax,ymax):
@@ -335,7 +347,7 @@ for root, dirs, files in os.walk(source_dir_root):
             # =================================================================
             # Copy Image and XML to Dest
             # =================================================================
-            with open(xml_out_path, "w+") as f1:
+            with open(xml_out_path, "wb") as f1:
                 f1.write(mydata)
             
             if resize_image == True:    
